@@ -11,42 +11,82 @@ This repository contains the **extraction layer only**. Conversion of the IR to 
 3. Groups content into named sections (driven by headings).
 4. Emits a deterministic JSON IR validated against `schemas/document-ir.schema.json` (via [`ajv`](https://www.npmjs.com/package/ajv)).
 
-## Setup
+## Quick start (fresh clone)
 
 ```bash
-nvm use            # uses Node 20 (see .nvmrc)
+# 1. Clone
+git clone git@github.com:rjoshig/doc-extractor.git
+cd doc-extractor
+
+# 2. Use Node 20+ (matches .nvmrc)
+nvm use            # or: nvm install 20 && nvm use 20
+
+# 3. Install deps
 npm install
+
+# 4. Verify everything works
+npm test           # 37 tests should pass
+npm run lint       # should be clean
 ```
 
-## Usage
+If you maintain multiple GitHub identities via `~/.ssh/config` host aliases, replace the clone URL with your alias, e.g. `git@github-rjoshig:rjoshig/doc-extractor.git`.
 
-### Single file (print to stdout)
+If `./bin/extract.js` complains about permissions after a fresh clone on Windows/WSL, run `chmod +x bin/extract.js` once.
+
+## Try the CLI
+
+### Smoke-test against bundled fixtures
 
 ```bash
-./bin/extract.js path/to/document.docx
+# Print IR JSON to stdout
+./bin/extract.js test/fixtures/docs/simple-sections-and-tables.docx
+
+# Same, but write to a file
+./bin/extract.js test/fixtures/docs/simple-sections-and-tables.docx --out /tmp/out.json
 ```
 
-### Single file (write to a file)
+### Generate and extract the multi-page sample SOW
+
+A larger example document (8+ pages, varied table widths from 2 to 6 columns) can be generated programmatically:
 
 ```bash
-./bin/extract.js path/to/document.docx --out /tmp/document.ir.json
+node scripts/generate-sample-input.js                                        # writes data/inputs/sample-sow.docx
+./bin/extract.js data/inputs/sample-sow.docx --out data/outputs/sample-sow.json
 ```
 
-### Batch a directory
+### Run on your own documents
 
 ```bash
-./bin/extract.js --batch ./data/inputs --out ./data/outputs
+# Drop your .docx files into data/inputs/ (gitignored)
+cp /path/to/your-file.docx data/inputs/
+
+# Single file
+./bin/extract.js data/inputs/your-file.docx --out data/outputs/your-file.json
+
+# Or batch the whole directory — every .docx becomes a sibling <name>.json
+./bin/extract.js --batch data/inputs --out data/outputs
 ```
 
-Every `.docx` in the input directory is processed, producing a sibling `<name>.json` in the output directory.
+## Reference: CLI modes
 
-### NPM scripts
+| Mode | Command |
+| --- | --- |
+| Single file → stdout | `./bin/extract.js path/to/file.docx` |
+| Single file → disk | `./bin/extract.js path/to/file.docx --out out.json` |
+| Batch directory | `./bin/extract.js --batch <in-dir> --out <out-dir>` |
+
+Exit codes: `0` ok, `1` usage / fatal error, `2` extraction succeeded but IR failed schema validation (still printed/written).
+
+## NPM scripts
 
 ```bash
-npm test            # run all tests once
-npm run test:watch  # watch mode
-npm run lint        # eslint
-npm run format      # prettier write
+npm test                              # run all tests once
+npm run test:watch                    # vitest watch mode
+npm run lint                          # eslint
+npm run format                        # prettier write
+node test/fixtures/generate.js        # rebuild bundled test .docx fixtures
+node test/fixtures/save-expected.js   # refresh expected IR snapshots after a parser change
+node scripts/generate-sample-input.js # regenerate data/inputs/sample-sow.docx
 ```
 
 ## IR shape (overview)

@@ -38,10 +38,10 @@ If `./bin/extract.js` complains about permissions after a fresh clone on Windows
 ### Smoke-test against bundled fixtures
 
 ```bash
-# Print IR JSON to stdout
+# Single-file: writes to data/outputs/<name>.json by default
 ./bin/extract.js test/fixtures/docs/simple-sections-and-tables.docx
 
-# Same, but write to a file
+# Or specify an explicit destination
 ./bin/extract.js test/fixtures/docs/simple-sections-and-tables.docx --out /tmp/out.json
 ```
 
@@ -50,8 +50,8 @@ If `./bin/extract.js` complains about permissions after a fresh clone on Windows
 A larger example document (8+ pages, varied table widths from 2 to 6 columns) can be generated programmatically:
 
 ```bash
-node scripts/generate-sample-input.js                                        # writes data/inputs/sample-sow.docx
-./bin/extract.js data/inputs/sample-sow.docx --out data/outputs/sample-sow.json
+node scripts/generate-sample-input.js                          # writes data/inputs/sample-sow.docx
+./bin/extract.js data/inputs/sample-sow.docx                   # → data/outputs/sample-sow.json
 ```
 
 ### Run on your own documents
@@ -60,22 +60,33 @@ node scripts/generate-sample-input.js                                        # w
 # Drop your .docx files into data/inputs/ (gitignored)
 cp /path/to/your-file.docx data/inputs/
 
-# Single file
-./bin/extract.js data/inputs/your-file.docx --out data/outputs/your-file.json
+# Single file → data/outputs/<same-name>.json (default)
+./bin/extract.js data/inputs/your-file.docx
 
-# Or batch the whole directory — every .docx becomes a sibling <name>.json
-./bin/extract.js --batch data/inputs --out data/outputs
+# Batch every .docx in data/inputs/ → data/outputs/ (defaults baked in)
+./bin/extract.js --batch
+./bin/extract.js -b           # shorthand
 ```
 
-## Reference: CLI modes
+## CLI behavior
 
 | Mode | Command |
 | --- | --- |
-| Single file → stdout | `./bin/extract.js path/to/file.docx` |
-| Single file → disk | `./bin/extract.js path/to/file.docx --out out.json` |
-| Batch directory | `./bin/extract.js --batch <in-dir> --out <out-dir>` |
+| Single file → `data/outputs/<name>.json` | `./bin/extract.js path/to/file.docx` |
+| Single file → custom path | `./bin/extract.js path/to/file.docx --out out.json` |
+| Batch (defaults: `data/inputs` → `data/outputs`) | `./bin/extract.js --batch` or `-b` |
+| Batch with custom dirs | `./bin/extract.js --batch <in-dir> --out <out-dir>` |
 
-Exit codes: `0` ok, `1` usage / fatal error, `2` extraction succeeded but IR failed schema validation (still printed/written).
+Notes:
+
+- **Filenames are normalized at source.** If an input filename contains whitespace, the file is renamed in place ("Zoho Temple 2020.docx" → "Zoho_Temple_2020.docx") before extraction. The output JSON inherits the sanitized name. If a sanitized target already exists, the rename is skipped and a warning is logged.
+- **Output is always written to disk** — nothing is printed to stdout. Progress is logged step-by-step:
+  ```
+  [1/3] Reading: data/inputs/Zoho_Temple_2020.docx
+  [1/3] Writing: data/outputs/Zoho_Temple_2020.json
+  [1/3] Completed successfully
+  ```
+- **Exit codes:** `0` all OK, `1` usage / fatal error, `2` extraction succeeded but at least one IR failed schema validation (the IR is still written).
 
 ## NPM scripts
 

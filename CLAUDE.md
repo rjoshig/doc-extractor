@@ -32,6 +32,7 @@ doc-extractor/
 ├── src/
 │   ├── parser/
 │   │   ├── docx-to-html.js
+│   │   ├── filename.js
 │   │   ├── html-to-ir.js
 │   │   ├── section-builder.js
 │   │   ├── slug.js
@@ -48,6 +49,7 @@ doc-extractor/
 │   │   ├── generate.js                         # programmatic .docx fixture generator
 │   │   └── save-expected.js                    # refresh expected IR snapshots
 │   ├── extract.test.js
+│   ├── filename.test.js
 │   ├── parser.test.js
 │   ├── section-builder.test.js
 │   ├── slug.test.js
@@ -138,6 +140,7 @@ No TypeScript. No other parsing libraries. No LLM dependencies.
 - `src/parser/html-to-ir.js` — top-level integrator: cheerio-loads HTML, extracts blocks in document order, hands off to `section-builder`.
 - `src/parser/section-builder.js` — groups an ordered list of blocks under their parent headings; produces the final `sections` array.
 - `src/parser/table-extractor.js` — turns a single cheerio `<table>` element into the IR table shape.
+- `src/parser/filename.js` — `sanitizeFilename` + `ensureSanitizedPath`; replaces whitespace in basenames with `_` and renames the file on disk.
 - `src/parser/slug.js` — `slugify(text)` utility; handles duplicate-slug suffixing at the section level.
 - `src/validate.js` — ajv-based IR validation. Returns `{ valid, errors }`.
 - `src/output.js` — writes IR JSON to disk (UTF-8, 2-space indent).
@@ -164,11 +167,20 @@ Any change to the IR shape **must** update `schemas/document-ir.schema.json` AND
 
 ```bash
 npm install
-npm test                                          # run all tests
-./bin/extract.js test/fixtures/docs/<file>.docx   # extract one file to stdout
-./bin/extract.js <file>.docx --out /tmp/out.json  # extract one file to disk
-./bin/extract.js --batch <in-dir> --out <out-dir> # batch
+npm test                                                # run all tests
+./bin/extract.js test/fixtures/docs/<file>.docx         # → data/outputs/<file>.json
+./bin/extract.js <file>.docx --out /tmp/out.json        # → custom path
+./bin/extract.js --batch                                # data/inputs → data/outputs (defaults)
+./bin/extract.js -b                                     # shorthand
+./bin/extract.js --batch <in-dir> --out <out-dir>       # custom dirs
 ```
+
+### CLI invariants
+
+- Filenames with whitespace are **renamed at source** before extraction (`"Zoho Temple.docx"` → `Zoho_Temple.docx`). Implemented in `src/parser/filename.js` (`sanitizeFilename`, `ensureSanitizedPath`).
+- Default output for a single file is `data/outputs/<sanitized-input-basename>.json`.
+- `--batch` / `-b` defaults the input dir to `INPUT_DIR` (`data/inputs`) and output dir to `OUTPUT_DIR` (`data/outputs`); both are overridable.
+- The CLI never writes IR to stdout. Progress is logged via `console.log`: `Reading: …` / `Writing: …` / `Completed successfully` (or `Failed: <reason>`). The orchestrator (`src/extract.js`) is silent — all logging is owned by `bin/extract.js`.
 
 ## Adding a new test fixture
 

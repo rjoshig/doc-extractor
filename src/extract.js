@@ -20,8 +20,5 @@ export async function extract(filePath, opts = {}) {
     extractedAt: opts.extractedAt,
   });
   const validation = await validateIR(ir);
-  if (!validation.valid) {
-    console.warn('IR validation failed:', JSON.stringify(validation.errors, null, 2));
-  }
   return { ir, validation };
 }

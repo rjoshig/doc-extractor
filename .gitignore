@@ -1,0 +1,8 @@
+node_modules
+.env
+data/inputs/*.docx
+data/outputs/*.json
+!data/inputs/.gitkeep
+!data/outputs/.gitkeep
+coverage
+*.log

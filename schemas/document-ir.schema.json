@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/rjoshig/doc-extractor/schemas/document-ir.schema.json",
+  "title": "DocumentIR",
+  "description": "Intermediate representation of a structured Word document.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["metadata", "sections"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["filename", "extractedAt"],
+      "properties": {
+        "filename": { "type": "string", "minLength": 1 },
+        "extractedAt": { "type": "string", "format": "date-time" },
+        "title": { "type": ["string", "null"] }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/section" }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "parserNotes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "unknownBlocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["html"],
+        "properties": {
+          "sectionId": { "type": ["string", "null"] },
+          "html": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "definitions": {
+    "section": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "heading", "level", "content"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "heading": { "type": "string" },
+        "level": { "type": "integer", "minimum": 0, "maximum": 6 },
+        "content": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/contentBlock" }
+        }
+      }
+    },
+    "contentBlock": {
+      "oneOf": [
+        { "$ref": "#/definitions/paragraphBlock" },
+        { "$ref": "#/definitions/tableBlock" },
+        { "$ref": "#/definitions/listBlock" },
+        { "$ref": "#/definitions/unknownBlock" }
+      ]
+    },
+    "paragraphBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "text"],
+      "properties": {
+        "type": { "const": "paragraph" },
+        "text": { "type": "string" }
+      }
+    },
+    "tableBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "columns", "rows", "hasHeader"],
+      "properties": {
+        "type": { "const": "table" },
+        "name": { "type": ["string", "null"] },
+        "columns": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "hasHeader": { "type": "boolean" },
+        "hasMergedHeader": { "type": "boolean" },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          }
+        }
+      }
+    },
+    "listBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "ordered", "items"],
+      "properties": {
+        "type": { "const": "list" },
+        "ordered": { "type": "boolean" },
+        "items": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "unknownBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "html"],
+      "properties": {
+        "type": { "const": "unknown" },
+        "html": { "type": "string" }
+      }
+    }
+  }
+}

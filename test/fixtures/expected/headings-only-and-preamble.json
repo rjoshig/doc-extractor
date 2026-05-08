@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "filename": "headings-only-and-preamble.docx",
+    "extractedAt": "2026-05-08T00:00:00.000Z",
+    "title": "Empty Section"
+  },
+  "sections": [
+    {
+      "id": "preamble",
+      "heading": "Preamble",
+      "level": 0,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "This text appears before any heading and lives in the implicit Preamble."
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "First bullet",
+            "Second bullet"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "empty-section",
+      "heading": "Empty Section",
+      "level": 1,
+      "content": []
+    },
+    {
+      "id": "section-with-prose",
+      "heading": "Section With Prose",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Just one paragraph here."
+        }
+      ]
+    }
+  ],
+  "warnings": [],
+  "parserNotes": []
+}

@@ -1,0 +1,92 @@
+{
+  "metadata": {
+    "filename": "simple-sections-and-tables.docx",
+    "extractedAt": "2026-05-08T00:00:00.000Z",
+    "title": "Sample Statement of Work"
+  },
+  "sections": [
+    {
+      "id": "sample-statement-of-work",
+      "heading": "Sample Statement of Work",
+      "level": 1,
+      "content": []
+    },
+    {
+      "id": "product-details",
+      "heading": "Product Details",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "This section describes the product being delivered."
+        },
+        {
+          "type": "table",
+          "name": "Product Details",
+          "columns": [
+            "Column A",
+            "Column B",
+            "Column C",
+            "Column D"
+          ],
+          "hasHeader": true,
+          "rows": [
+            {
+              "Column A": "A1",
+              "Column B": "B1",
+              "Column C": "C1",
+              "Column D": "D1"
+            },
+            {
+              "Column A": "A2",
+              "Column B": "B2",
+              "Column C": "C2",
+              "Column D": "D2"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Additional notes about the product appear after the table."
+        }
+      ]
+    },
+    {
+      "id": "deliverables",
+      "heading": "Deliverables",
+      "level": 1,
+      "content": [
+        {
+          "type": "table",
+          "name": "Deliverables",
+          "columns": [
+            "H1",
+            "H2",
+            "H3",
+            "H4",
+            "H5"
+          ],
+          "hasHeader": true,
+          "rows": [
+            {
+              "H1": "v1",
+              "H2": "v2",
+              "H3": "v3",
+              "H4": "v4",
+              "H5": "v5"
+            },
+            {
+              "H1": "w1",
+              "H2": "w2",
+              "H3": "w3",
+              "H4": "w4",
+              "H5": "w5"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "warnings": [],
+  "parserNotes": []
+}
